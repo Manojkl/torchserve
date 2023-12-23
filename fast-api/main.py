@@ -13,16 +13,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseSettings
 from pydantic import BaseSettings, Field
-import aioredis
 
-SQLALCHEMY_DATABASE_URL = (
-    "postgresql://welcome:welcome@postgresql-service:5432/my_database"
-)
+SQLALCHEMY_DATABASE_URL = "postgresql://welcome:welcome@postgresql-service:5432/my_database"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
 
 @app.get("/")
 async def root():
@@ -154,38 +150,3 @@ from typing import List
 @app.get("/get_all_users/")
 async def get_all_users(db: Session = Depends(get_db)):
     return db.query(User).all()
-
-
-# Function to connect to Redis
-async def connect_to_redis():
-    global redis_pool
-    redis_pool = await aioredis.create_redis_pool("redis://redis-service:6379")
-
-
-# Function to close the Redis connection
-async def close_redis_connection():
-    redis_pool.close()
-    await redis_pool.wait_closed()
-
-
-# Use event handlers to connect/disconnect to Redis when the application starts/stops
-@app.on_event("startup")
-async def startup_event():
-    await connect_to_redis()
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await close_redis_connection()
-
-
-# Example endpoint to interact with Redis
-@app.get("/")
-async def read_item():
-    # Example: Set a value in Redis
-    await redis_pool.set("my_key", "my_value")
-
-    # Example: Get a value from Redis
-    value = await redis_pool.get("my_key")
-
-    return {"value_from_redis": value}
