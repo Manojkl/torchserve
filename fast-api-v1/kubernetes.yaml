@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fast-api-deployment
+  name: fast-api-deployment-v1
 spec:
   replicas: 2
   selector:
@@ -15,7 +15,7 @@ spec:
       containers:
       - name: fast-api
         # imagePullPolicy: Never
-        image: manoj/fast-api
+        image: manoj/fast-api-v1
         imagePullPolicy: Never
         resources:
           limits:
@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: fast-api-service
+  name: fast-api-service-v1
 spec:
   selector:
     app: fast-api
